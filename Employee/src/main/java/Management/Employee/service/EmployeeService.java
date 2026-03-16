@@ -24,6 +24,10 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
+    public List<Employee> getEmployeesByRole(String role) {
+        return employeeRepository.findByRoleIgnoreCase(role);
+    }
+
    
     public Employee getEmployeeById(Long employeeId) {
         return employeeRepository.findById(employeeId)

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import Management.Employee.model.Employee;
@@ -26,8 +27,11 @@ public class EmployeeController {
 
 
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        List<Employee> employees = employeeService.getAllEmployees();
+    public ResponseEntity<List<Employee>> getAllEmployees(
+            @RequestParam(required = false) String role) {
+        List<Employee> employees = role != null && !role.isBlank()
+                ? employeeService.getEmployeesByRole(role.trim())
+                : employeeService.getAllEmployees();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
