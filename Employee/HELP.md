@@ -19,8 +19,9 @@ The following guides illustrate how to use some features concretely:
 
 ### Maven Parent overrides
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+Because of how Maven works, elements from the parent POM are automatically inherited by the project POM.
+
+While this inheritance is generally useful, it can also bring in elements that may not be desired, such as <license> and <developers>. To avoid inheriting these, the project POM includes empty overrides for those elements.
+
+If you later change the parent POM and want these elements to be inherited again, you will need to remove the empty overrides.
 
