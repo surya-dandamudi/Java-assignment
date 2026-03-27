@@ -24,6 +24,17 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
+    public List<Employee> searchEmployeesByRole(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            return employeeRepository.findAll();
+        }
+        return employeeRepository.findByRoleContainingIgnoreCase(role.trim());
+    }
+
+    public List<Employee> getEmployeesByManagerId(Long managerId) {
+        return employeeRepository.findByManagerId(managerId);
+    }
+
    
     public Employee getEmployeeById(Long employeeId) {
         return employeeRepository.findById(employeeId)
