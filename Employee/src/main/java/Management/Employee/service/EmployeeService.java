@@ -24,7 +24,7 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-    public Employee updateEmployee(Long employeeId, Employee updatedEmployee) {
+public Employee updateEmployee(Long employeeId, Employee updatedEmployee) {
         Employee existingEmployee = employeeRepository.findById(employeeId)
             .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
@@ -47,6 +47,16 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    public List<Employee> searchEmployeesByRole(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            return employeeRepository.findAll();
+        }
+        return employeeRepository.findByRoleContainingIgnoreCase(role.trim());
+    }
+
+    public List<Employee> getEmployeesByManagerId(Long managerId) {
+        return employeeRepository.findByManagerId(managerId);
+    }
     public Employee getEmployeeById(Long employeeId) {
         return employeeRepository.findById(employeeId)
             .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
