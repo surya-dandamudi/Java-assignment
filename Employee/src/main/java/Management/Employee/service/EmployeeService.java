@@ -24,7 +24,29 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-   
+    public Employee updateEmployee(Long employeeId, Employee updatedEmployee) {
+        Employee existingEmployee = employeeRepository.findById(employeeId)
+            .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
+
+        existingEmployee.setRole(updatedEmployee.getRole());
+        existingEmployee.setSalary(updatedEmployee.getSalary());
+        existingEmployee.setStartDate(updatedEmployee.getStartDate());
+        existingEmployee.setManagerId(updatedEmployee.getManagerId());
+        existingEmployee.setPersonId(updatedEmployee.getPersonId()); 
+
+        return employeeRepository.save(existingEmployee);
+    }
+
+    public Employee createEmployee(Employee employee) {
+        if (employee.getPersonId() != null) {
+            personRepository.findById(employee.getPersonId())
+                .orElseThrow(() -> new EntityNotFoundException("Person with id " + employee.getPersonId() + " not found"));
+        } else {
+            throw new IllegalArgumentException("Person ID must be provided");
+        }
+        return employeeRepository.save(employee);
+    }
+
     public Employee getEmployeeById(Long employeeId) {
         return employeeRepository.findById(employeeId)
             .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
