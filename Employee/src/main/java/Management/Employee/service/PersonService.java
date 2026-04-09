@@ -2,6 +2,7 @@ package Management.Employee.service;
 
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class PersonService {
   
     public Person getPersonById(Long id) {
         return personRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Person not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Person not found"));
     }
 
     public Person createPerson(Person person) {
@@ -33,7 +34,7 @@ public class PersonService {
   
     public Person updatePerson(Long id, Person temp) {
         Person cur = personRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Person not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Person not found"));
 
         cur.setName(temp.getName());
         cur.setEmail(temp.getEmail());
@@ -44,7 +45,7 @@ public class PersonService {
 
     public void deletePerson(Long id) {
         if (!personRepository.existsById(id)) {
-            throw new RuntimeException("Person not found");
+            throw new EntityNotFoundException("Person not found");
         }
         personRepository.deleteById(id);
     }

@@ -2,6 +2,7 @@ package Management.Employee.controller;
 
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,13 +47,14 @@ public class PersonController {
     @PostMapping
     public ResponseEntity<Person> createPerson(@RequestBody Person person) {
         try {
-          
-            if (person.getName() == null || person.getEmail() == null || person.getPhoneNumber() == null) {
+            if (person == null || person.getName() == null || person.getName().trim().isEmpty()
+                    || person.getEmail() == null || person.getEmail().trim().isEmpty()
+                    || person.getPhoneNumber() == null || person.getPhoneNumber().trim().isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             Person createdPerson = personService.createPerson(person);
             return new ResponseEntity<>(createdPerson, HttpStatus.CREATED);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -61,13 +63,11 @@ public class PersonController {
     @PutMapping("/{id}")
     public ResponseEntity<Person> updatePerson(@PathVariable("id") Long id, @RequestBody Person person) {
         try {
-           
-            Person existingPerson = personService.getPersonById(id);
-            if (existingPerson == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            if (person == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-    
-            
+            Person existingPerson = personService.getPersonById(id);
+
             if (person.getName() != null && !person.getName().trim().isEmpty()) {
                 existingPerson.setName(person.getName());
             }
@@ -81,8 +81,10 @@ public class PersonController {
          
             Person updatedPerson = personService.updatePerson(id, existingPerson);
             return new ResponseEntity<>(updatedPerson, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
     
