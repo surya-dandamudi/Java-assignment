@@ -2,6 +2,7 @@ package Management.Employee.controller;
 
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +34,13 @@ public class EmployeeController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Employee>> searchEmployeesByRole(@RequestParam(value = "role", required = false) String role) {
+public ResponseEntity<List<Employee>> searchEmployeesByRole(@RequestParam(value = "role", required = false) String role) {
         List<Employee> employees = employeeService.searchEmployeesByRole(role);
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
     @GetMapping("/manager/{managerId}")
-    public ResponseEntity<List<Employee>> getEmployeesByManagerId(@PathVariable("managerId") Long managerId) {
+public ResponseEntity<List<Employee>> getEmployeesByManagerId(@PathVariable("managerId") Long managerId) {
         List<Employee> employees = employeeService.getEmployeesByManagerId(managerId);
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
@@ -59,12 +60,15 @@ public class EmployeeController {
     @PostMapping
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
         try {
-            if (employee.getPersonId() == null) {
+            if (employee == null || employee.getPersonId() == null
+                    || employee.getRole() == null || employee.getRole().trim().isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             Employee createdEmployee = employeeService.createEmployee(employee);
             return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -73,18 +77,15 @@ public class EmployeeController {
     @PutMapping("/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable("id") Long id, @RequestBody Employee employee) {
         try {
-          
-            Employee existingEmployee = employeeService.getEmployeeById(id);
-            if (existingEmployee == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-    
-        
-            if (employee.getPersonId() == null) {
+            if (employee == null) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
+            Employee existingEmployee = employeeService.getEmployeeById(id);
     
          
+            if (employee.getPersonId() != null) {
+                existingEmployee.setPersonId(employee.getPersonId());
+            }
             if (employee.getRole() != null && !employee.getRole().trim().isEmpty()) {
                 existingEmployee.setRole(employee.getRole());
             }
@@ -98,8 +99,10 @@ public class EmployeeController {
            
             Employee updatedEmployee = employeeService.updateEmployee(id, existingEmployee);
             return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
     
